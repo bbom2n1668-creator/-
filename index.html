@@ -1,0 +1,1881 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>calcifer</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #111; color: #fff; overflow-x: hidden; }
+
+/* ── NAV ── */
+#nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 48px;
+  transition: background 0.4s, backdrop-filter 0.4s;
+}
+#nav.scrolled { background: rgba(17,17,17,0.92); backdrop-filter: blur(12px); box-shadow: 0 1px 0 rgba(255,255,255,0.06); }
+.nav-logo { font-size: 22px; font-weight: 700; color: #fff; font-family: 'Georgia', serif; }
+.nav-logo sup { font-size: 11px; vertical-align: super; font-weight: 400; }
+.nav-links { display: flex; gap: 40px; list-style: none; }
+.nav-links a { font-size: 13px; color: rgba(255,255,255,0.8); text-decoration: none; letter-spacing: 0.08em; position: relative; padding-bottom: 3px; transition: color 0.25s; }
+.nav-links a::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: #FF7A00; transform: scaleX(0); transform-origin: left; transition: transform 0.3s; }
+.nav-links a:hover { color: #fff; }
+.nav-links a:hover::after { transform: scaleX(1); }
+.nav-right { display: flex; align-items: center; gap: 20px; }
+.nav-cart { font-size: 13px; color: rgba(255,255,255,0.8); cursor: pointer; transition: color 0.25s; }
+.nav-cart:hover { color: #FF7A00; }
+.nav-menu { display: flex; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; }
+.nav-menu span { display: block; width: 22px; height: 1.5px; background: #fff; transition: transform 0.3s, opacity 0.3s; }
+
+/* ── HERO ── */
+#hero { position: relative; width: 100%; height: 100vh; min-height: 680px; overflow: hidden; background: #1a1008; }
+.hero-bg { position: absolute; top: -8%; left: 0; width: 100%; height: 116%; object-fit: cover; object-position: 68% 18%; will-change: transform; }
+.hero-text { position: absolute; bottom: 28%; left: 5%; z-index: 2; }
+.hero-title { font-size: clamp(56px, 9vw, 116px); font-weight: 700; line-height: 0.95; color: #fff; text-shadow: 0 2px 48px rgba(0,0,0,0.3); opacity: 0; transform: translateY(28px); animation: heroFadeUp 1s 0.3s forwards; }
+.hero-cta-row { display: flex; align-items: center; gap: 12px; margin-top: 32px; opacity: 0; transform: translateY(20px); animation: heroFadeUp 1s 0.7s forwards; }
+.hero-tag { display: inline-flex; align-items: center; gap: 10px; padding: 10px 20px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25); border-radius: 100px; font-size: 13px; color: #fff; backdrop-filter: blur(8px); cursor: default; white-space: nowrap; transition: background 0.3s; }
+.hero-tag:hover { background: rgba(255,255,255,0.18); }
+.hero-price-btn { display: inline-block; padding: 10px 24px; background: #FF7A00; border: none; border-radius: 100px; font-size: 14px; font-weight: 700; color: #fff; cursor: pointer; white-space: nowrap; box-shadow: 0 4px 24px rgba(255,122,0,0.55); transition: background 0.25s, transform 0.2s, box-shadow 0.25s; }
+.hero-price-btn:hover { background: #ff9130; transform: translateY(-2px); box-shadow: 0 8px 32px rgba(255,122,0,0.7); }
+.scroll-indicator { position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: 0; animation: heroFadeUp 1s 1.4s forwards; }
+.scroll-indicator span { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.38); }
+.scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, rgba(255,122,0,0.8), transparent); animation: scrollPulse 2s ease-in-out infinite; }
+
+/* ── FEATURES ── */
+#features { background: #111; display: flex; justify-content: center; align-items: flex-start; padding: 44px 40px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+.feat { display: flex; align-items: flex-start; gap: 16px; padding: 0 40px; border-right: 1px solid rgba(255,255,255,0.08); cursor: default; transition: transform 0.3s; }
+.feat:last-child { border-right: none; }
+.feat:hover { transform: translateY(-3px); }
+.feat-icon { width: 44px; height: 44px; flex-shrink: 0; opacity: 0.8; transition: opacity 0.3s; }
+.feat:hover .feat-icon { opacity: 1; }
+.feat-name { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #fff; margin-bottom: 6px; }
+.feat-desc { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.5; }
+
+/* ── PRODUCT GRID ── */
+#product-grid { display: grid; grid-template-columns: 58% 42%; grid-template-rows: 260px 260px; gap: 3px; background: #111; padding: 24px; }
+.pg-main { grid-column: 1; grid-row: 1 / 3; position: relative; overflow: hidden; border-radius: 12px; cursor: default; }
+.pg-main img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s; }
+.pg-main:hover img { transform: scale(1.04); }
+.pg-card { position: relative; overflow: hidden; border-radius: 12px; cursor: default; }
+.pg-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s; }
+.pg-card:hover img { transform: scale(1.05); }
+.pg-main::after, .pg-card::after { content: ''; position: absolute; inset: 0; background: rgba(255,122,0,0); transition: background 0.4s; pointer-events: none; border-radius: inherit; }
+.pg-main:hover::after, .pg-card:hover::after { background: rgba(255,122,0,0.05); }
+
+/* ── TEAM ── */
+#team { background: #0d0d0d; padding: 100px 80px 120px; }
+.team-row { display: flex; justify-content: center; align-items: flex-start; gap: 48px; max-width: 1000px; margin: 0 auto; }
+.team-card { flex: 0 0 260px; border-radius: 8px; overflow: hidden; cursor: default; transition: transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94), box-shadow 0.4s; }
+.team-card:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 28px 60px rgba(0,0,0,0.7); }
+.team-card img { width: 100%; display: block; }
+.card-bomin { margin-top: 0; } .card-sujeong { margin-top: 80px; } .card-yumin { margin-top: 30px; }
+
+/* ── ABOUT ── */
+#about { background: #111; padding: 100px 60px 120px; }
+.about-top { display: grid; grid-template-columns: 260px 1fr; gap: 40px; align-items: start; margin-bottom: 60px; }
+.about-title { font-size: clamp(52px, 6.5vw, 88px); font-weight: 700; line-height: 1.0; color: #FF7A00; position: sticky; top: 100px; }
+.about-imgs { display: flex; gap: 12px; align-items: flex-start; }
+.about-img-wrap { flex: 1; border-radius: 8px; overflow: hidden; cursor: default; transition: transform 0.5s, box-shadow 0.5s; }
+.about-img-wrap:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
+.about-img-wrap img { width: 100%; height: auto; display: block; transition: transform 0.6s; }
+.about-img-wrap:hover img { transform: scale(1.03); }
+.about-img-wrap:nth-child(1) { margin-top: 0; } .about-img-wrap:nth-child(2) { margin-top: 40px; } .about-img-wrap:nth-child(3) { margin-top: 20px; }
+.about-bottom { display: flex; justify-content: flex-end; }
+.about-text { max-width: 380px; }
+.about-text h3 { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 14px; }
+.about-text p { font-size: 13px; line-height: 1.9; color: rgba(255,255,255,0.6); }
+
+/* ── EVERYDAY ── */
+#everyday { position: relative; overflow: hidden; background: #0a0604; }
+.ev-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 20%; filter: brightness(0.65); will-change: transform; z-index: 0; }
+.ev-content { position: relative; z-index: 10; }
+.ev-row-top { display: grid; grid-template-columns: 28% 1fr 36%; align-items: start; padding: 80px 40px 0; gap: 0; }
+.ev-frame-left { background: #fff; padding: 8px; border-radius: 2px; overflow: hidden; cursor: default; z-index: 1; position: relative; transition: transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94), box-shadow 0.5s; }
+.ev-frame-left:hover { transform: translateY(-8px) rotate(-1.5deg); box-shadow: 0 24px 60px rgba(0,0,0,0.6); }
+.ev-frame-left img { width: 100%; height: auto; display: block; transition: transform 0.6s; }
+.ev-frame-left:hover img { transform: scale(1.04); }
+.ev-title-col { padding: 40px 0 0 20px; z-index: 20; position: relative; }
+.ev-title { font-size: clamp(72px, 10vw, 148px); font-weight: 700; line-height: 0.92; color: #FF7A00; letter-spacing: -0.02em; position: relative; z-index: 20; }
+.ev-frame-right { background: #fff; padding: 8px; border-radius: 2px; overflow: hidden; cursor: default; margin-top: 60px; z-index: 1; position: relative; transition: transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94), box-shadow 0.5s; }
+.ev-frame-right:hover { transform: translateY(-8px) rotate(1.5deg); box-shadow: 0 24px 60px rgba(0,0,0,0.6); }
+.ev-frame-right img { width: 100%; height: auto; display: block; transition: transform 0.6s; }
+.ev-frame-right:hover img { transform: scale(1.04); }
+.ev-row-bottom { position: relative; z-index: 10; margin-top: 40px; }
+.ev-orange-bg { background: #FF7A00; display: grid; grid-template-columns: 40% 1fr; align-items: center; padding: 60px 80px 80px 0; gap: 48px; }
+.ev-frame-bottom { background: #fff; padding: 8px; border-radius: 2px; overflow: hidden; cursor: default; margin-top: -80px; margin-left: 40px; position: relative; z-index: 15; transition: transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94), box-shadow 0.5s; }
+.ev-frame-bottom:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 24px 60px rgba(0,0,0,0.5); }
+.ev-frame-bottom img { width: 100%; height: auto; display: block; transition: transform 0.6s; }
+.ev-frame-bottom:hover img { transform: scale(1.04); }
+.ev-camping-text { position: relative; z-index: 11; }
+.ev-camping-text h3 { font-size: 16px; font-weight: 700; color: #111; margin-bottom: 12px; }
+.ev-camping-text p { font-size: 13px; line-height: 1.8; color: rgba(0,0,0,0.7); }
+
+/* ════════════════════════════════════════
+   INSIGHT / PLACE EMOTION
+   좌(제품)·우(모닥불) 각각 다른 이미지
+   — 두 이미지 모두 1920×1080 동일 비율
+   — object-fit: cover + object-position으로
+     각 이미지가 자기 영역을 꽉 채움
+   — clip-path로 좌측 이미지 노출 범위 제어
+════════════════════════════════════════ */
+#insight {
+  position: relative;
+  background: #000;
+  overflow: hidden;
+  user-select: none;
+}
+
+.insight-label {
+  position: absolute;
+  top: 40px; left: 48px;
+  z-index: 30;
+  display: flex; align-items: center; gap: 10px;
+  opacity: 0; transform: translateY(20px);
+  transition: opacity 0.7s, transform 0.7s;
+}
+.insight-label.visible { opacity: 1; transform: translateY(0); }
+.insight-label-dot { width: 18px; height: 3px; background: #FF7A00; border-radius: 2px; }
+.insight-label-text { font-size: 18px; font-weight: 500; color: #fff; letter-spacing: 0.02em; }
+
+.insight-slider {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  cursor: col-resize;
+  overflow: hidden;
+}
+
+/* 우측 이미지: 모닥불 — 전체 배경 */
+.insight-right {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 좌측 이미지 wrapper: clip-path로 노출 범위 조절 */
+.insight-left-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  clip-path: inset(0 50% 0 0);
+  transition: clip-path 0.04s linear;
+  pointer-events: none;
+}
+
+/* 좌측 이미지: 제품 */
+.insight-left {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  pointer-events: none;
+}
+
+/* 구분선 */
+.insight-divider {
+  position: absolute;
+  top: 0; bottom: 0; left: 50%;
+  width: 2px;
+  background: rgba(255,255,255,0.9);
+  transform: translateX(-50%);
+  z-index: 20;
+  pointer-events: none;
+  transition: left 0.04s linear;
+  box-shadow: 0 0 12px rgba(0,0,0,0.4);
+}
+
+/* 핸들 */
+.insight-handle {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 52px; height: 52px;
+  background: #fff; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: col-resize;
+}
+.insight-handle:hover {
+  transform: translate(-50%, -50%) scale(1.12);
+  box-shadow: 0 6px 28px rgba(0,0,0,0.5);
+}
+.insight-handle svg { width: 22px; height: 22px; }
+
+/* Place Emotion 텍스트 — 우측 하단 */
+.insight-text {
+  position: absolute;
+  bottom: 48px; right: 48px;
+  z-index: 25; max-width: 400px;
+  pointer-events: none;
+}
+.insight-text h3 {
+  font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 10px;
+  text-shadow: 0 2px 16px rgba(0,0,0,0.7);
+}
+.insight-text p {
+  font-size: 14px; line-height: 1.8; color: rgba(255,255,255,0.88);
+  text-shadow: 0 1px 10px rgba(0,0,0,0.7);
+}
+
+/* 힌트 */
+.insight-hint {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, calc(-50% + 44px));
+  z-index: 30; pointer-events: none;
+  transition: opacity 0.5s;
+}
+.insight-hint span {
+  font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: rgba(255,255,255,0.85);
+  background: rgba(0,0,0,0.4);
+  padding: 7px 18px; border-radius: 100px;
+  backdrop-filter: blur(6px); white-space: nowrap;
+  display: block;
+}
+.insight-hint.hidden { opacity: 0; }
+
+/* 스크롤 리빌 공통 */
+.reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-d1 { transition-delay: 0.12s; } .reveal-d2 { transition-delay: 0.24s; }
+.reveal-d3 { transition-delay: 0.36s; } .reveal-d4 { transition-delay: 0.48s; }
+.reveal-left { opacity: 0; transform: translateX(-40px); transition: opacity 0.8s ease, transform 0.8s ease; }
+.reveal-left.visible { opacity: 1; transform: translateX(0); }
+.reveal-right { opacity: 0; transform: translateX(40px); transition: opacity 0.8s ease, transform 0.8s ease; transition-delay: 0.15s; }
+.reveal-right.visible { opacity: 1; transform: translateX(0); }
+.reveal-title { opacity: 0; transform: translateY(40px); transition: opacity 0.9s ease, transform 0.9s cubic-bezier(0.25,0.46,0.45,0.94); transition-delay: 0.05s; }
+.reveal-title.visible { opacity: 1; transform: translateY(0); }
+.reveal-up { opacity: 0; transform: translateY(50px); transition: opacity 0.8s ease, transform 0.8s ease; transition-delay: 0.2s; }
+.reveal-up.visible { opacity: 1; transform: translateY(0); }
+
+@keyframes heroFadeUp { to { opacity: 1; transform: translateY(0); } }
+@keyframes scrollPulse {
+  0%, 100% { opacity: 0.4; transform: scaleY(0.7); transform-origin: top; }
+  50%       { opacity: 1; transform: scaleY(1); transform-origin: top; }
+}
+
+@media (max-width: 900px) {
+  .ev-row-top { grid-template-columns: 1fr; padding: 60px 24px 0; gap: 32px; }
+  .ev-frame-right { margin-top: 0; }
+  .ev-orange-bg { grid-template-columns: 1fr; padding: 0 24px 60px; }
+  .ev-frame-bottom { margin-top: -40px; margin-left: 24px; }
+  .about-top { grid-template-columns: 1fr; }
+  .about-title { position: static; font-size: 60px; margin-bottom: 32px; }
+  .insight-handle { width: 36px; height: 36px; }
+  .insight-text { bottom: 32px; right: 24px; max-width: 260px; }
+  .insight-label { top: 32px; left: 24px; }
+}
+@media (max-width: 768px) {
+  #nav { padding: 16px 20px; } .nav-links { display: none; }
+  #features { flex-wrap: wrap; gap: 24px; padding: 28px 16px; }
+  .feat { border-right: none; padding: 0 12px; }
+  #product-grid { grid-template-columns: 1fr; grid-template-rows: 300px 220px 220px; padding: 12px; gap: 8px; }
+  .pg-main { grid-column: 1; grid-row: 1; }
+  #team { padding: 60px 24px 80px; }
+  .team-row { flex-direction: column; align-items: center; gap: 24px; }
+  .team-card { flex: 0 0 auto; width: 260px; margin-top: 0 !important; }
+  #about { padding: 60px 24px 80px; } .about-imgs { flex-direction: column; }
+  .ev-title { font-size: 60px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* ── BACKGROUND SECTION ── */
+#bg-section {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #0a0604;
+}
+.bg-img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: center center;
+  will-change: transform; z-index: 0;
+}
+.bg-overlay {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(to bottom,
+    rgba(10,6,4,0.52) 0%,
+    rgba(10,6,4,0.0)  28%,
+    rgba(10,6,4,0.0)  52%,
+    rgba(10,6,4,0.78) 100%
+  );
+}
+.bg-content {
+  position: absolute; inset: 0; z-index: 2;
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+  padding: 44px 56px 52px;
+}
+/* 좌상단 레이블 */
+.bg-label {
+  display: flex; align-items: center; gap: 10px;
+  opacity: 0; transform: translateY(-14px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.bg-label.visible { opacity: 1; transform: translateY(0); }
+.bg-label-dot { width: 20px; height: 3px; background: #FF7A00; border-radius: 2px; flex-shrink: 0; }
+.bg-label-text { font-size: 22px; font-weight: 600; color: #fff; letter-spacing: 0.01em; }
+/* 하단 텍스트 블록 */
+.bg-text-block {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 16px;
+}
+.bg-main-copy {
+  font-size: clamp(17px, 2vw, 30px); font-weight: 700;
+  color: #fff; text-align: center; line-height: 1.45;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.6);
+  max-width: 880px;
+  opacity: 0; transform: translateY(22px);
+  transition: opacity 0.8s ease 0.1s, transform 0.8s ease 0.1s;
+}
+.bg-main-copy.visible { opacity: 1; transform: translateY(0); }
+.bg-sub-copy {
+  font-size: clamp(11px, 1vw, 15px);
+  color: rgba(255,255,255,0.72); text-align: right; line-height: 1.85;
+  text-shadow: 0 1px 10px rgba(0,0,0,0.5); align-self: flex-end;
+  opacity: 0; transform: translateY(18px);
+  transition: opacity 0.8s ease 0.25s, transform 0.8s ease 0.25s;
+}
+.bg-sub-copy.visible { opacity: 1; transform: translateY(0); }
+
+
+/* ── CONCEPT SECTION ── */
+#concept-section {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #060a12;
+}
+.concept-img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: center center;
+  will-change: transform; z-index: 0;
+}
+.concept-overlay {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(to bottom,
+    rgba(6,10,18,0.48) 0%,
+    rgba(6,10,18,0.0)  25%,
+    rgba(6,10,18,0.0)  50%,
+    rgba(6,10,18,0.72) 100%
+  );
+}
+.concept-content {
+  position: absolute; inset: 0; z-index: 2;
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+  padding: 44px 56px 52px;
+}
+/* 좌상단 레이블 */
+.concept-label {
+  display: flex; align-items: center; gap: 10px;
+  opacity: 0; transform: translateY(-14px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.concept-label.visible { opacity: 1; transform: translateY(0); }
+.concept-label-dot { width: 20px; height: 3px; background: #FF7A00; border-radius: 2px; flex-shrink: 0; }
+.concept-label-text { font-size: 22px; font-weight: 600; color: #fff; letter-spacing: 0.01em; }
+/* 하단 텍스트 블록 */
+.concept-text-block {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 16px;
+}
+.concept-main-copy {
+  font-size: clamp(17px, 2vw, 30px); font-weight: 700;
+  color: #fff; text-align: center; line-height: 1.45;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.6);
+  max-width: 880px;
+  opacity: 0; transform: translateY(22px);
+  transition: opacity 0.8s ease 0.1s, transform 0.8s ease 0.1s;
+}
+.concept-main-copy.visible { opacity: 1; transform: translateY(0); }
+.concept-sub-copy {
+  font-size: clamp(11px, 1vw, 15px);
+  color: rgba(255,255,255,0.75); text-align: right; line-height: 1.85;
+  text-shadow: 0 1px 10px rgba(0,0,0,0.5); align-self: flex-end;
+  opacity: 0; transform: translateY(18px);
+  transition: opacity 0.8s ease 0.25s, transform 0.8s ease 0.25s;
+}
+.concept-sub-copy.visible { opacity: 1; transform: translateY(0); }
+
+
+/* ── PRODUCT MAIN SECTION ── */
+#product-section {
+  background: #111;
+  overflow: hidden;
+}
+
+/* 메인 이미지 영역 — 원본 비율 유지 */
+.product-main-img-wrap {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: #111;
+}
+.product-main-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* calcifer 로고 — 좌상단 오버레이 */
+.product-logo-overlay {
+  position: absolute;
+  top: 52px;
+  left: 52px;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-16px);
+  transition: opacity 0.8s ease 0.2s, transform 0.8s ease 0.2s;
+}
+.product-logo-overlay.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.product-logo-text {
+  font-family: 'Georgia', serif;
+  font-size: clamp(32px, 4.5vw, 68px);
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.01em;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.4);
+  line-height: 1;
+}
+.product-logo-text sup {
+  font-size: 0.35em;
+  vertical-align: super;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+/* ── 3 모드 카드 그리드 ── */
+.product-modes-wrap {
+  background: #111;
+  padding: 0 28px 60px;
+}
+
+/* 모드 헤더 행 — 레이블 3개 */
+.mode-labels-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+  margin-bottom: 12px;
+}
+.mode-label-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px;
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.mode-label-item.visible { opacity: 1; transform: translateY(0); }
+.mode-label-item:nth-child(2) { transition-delay: 0.1s; }
+.mode-label-item:nth-child(3) { transition-delay: 0.2s; }
+.mode-label-dot {
+  width: 16px; height: 2.5px;
+  background: #FF7A00; border-radius: 2px; flex-shrink: 0;
+}
+.mode-label-name {
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.13em; text-transform: uppercase;
+  color: #fff;
+}
+
+/* 모드 카드 이미지 행 */
+.mode-cards-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+}
+.mode-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  cursor: default;
+  background: #1a1a1a;
+  transition: transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94),
+              box-shadow 0.4s ease;
+  opacity: 0;
+  transform: translateY(24px);
+}
+.mode-card.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.mode-card:nth-child(2) { transition-delay: 0.1s; }
+.mode-card:nth-child(3) { transition-delay: 0.2s; }
+.mode-card:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 20px 48px rgba(0,0,0,0.5);
+  z-index: 2;
+}
+.mode-card img {
+  width: 100%; height: auto; display: block;
+  transition: transform 0.6s ease;
+}
+.mode-card:hover img { transform: scale(1.06); }
+
+
+/* ── DIMENSION + CMF SECTION ── */
+#dimension-section {
+  background: #f0eeeb;
+  overflow: hidden;
+}
+
+/* 상단: PRODUCT DIMENSIONS 헤더 */
+.dim-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 60px 60px 0;
+}
+.dim-label {
+  display: flex; align-items: center; gap: 10px;
+  opacity: 0; transform: translateY(-14px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.dim-label.visible { opacity: 1; transform: translateY(0); }
+.dim-label-dot { width: 20px; height: 3px; background: #FF7A00; border-radius: 2px; }
+.dim-label-text {
+  font-size: 13px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: #222;
+}
+
+/* 치수 스펙 텍스트 — 우측 */
+.dim-specs {
+  text-align: right;
+  opacity: 0; transform: translateY(-14px);
+  transition: opacity 0.7s ease 0.15s, transform 0.7s ease 0.15s;
+}
+.dim-specs.visible { opacity: 1; transform: translateY(0); }
+.dim-spec-title {
+  font-size: clamp(22px, 2.8vw, 38px); font-weight: 700;
+  color: #111; line-height: 1.15; margin-bottom: 20px;
+}
+.dim-spec-row {
+  font-size: 13px; color: #555; line-height: 2;
+  border-top: 1px solid rgba(0,0,0,0.1); padding-top: 16px;
+}
+.dim-spec-row span { color: #111; font-weight: 600; }
+
+/* 메인 이미지 — 원본 비율 유지 */
+.dim-img-wrap {
+  width: 100%; margin-top: 20px;
+  opacity: 0; transform: translateY(30px);
+  transition: opacity 0.9s ease 0.2s, transform 0.9s ease 0.2s;
+}
+.dim-img-wrap.visible { opacity: 1; transform: translateY(0); }
+.dim-img {
+  width: 100%; height: auto; display: block;
+}
+
+
+/* ── CMF COLOR SWATCH SECTION ── */
+#cmf-section {
+  background: #d8d5d0;
+  padding-bottom: 60px;
+  overflow: hidden;
+}
+
+/* 4컬러 패널 컨테이너 */
+.cmf-panels {
+  display: flex;
+  width: 100%;
+  height: auto;
+  cursor: pointer;
+  /* 초기: 4등분 균등 */
+  position: relative;
+}
+
+.cmf-panel {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  transition: flex 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  /* 스크롤 진입 애니메이션 */
+  opacity: 0;
+  transform: translateY(30px);
+  transition:
+    flex 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    opacity 0.6s ease,
+    transform 0.6s ease;
+}
+.cmf-panel.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* stagger */
+.cmf-panel:nth-child(1) { transition-delay: 0s,   0s,   0s;   }
+.cmf-panel:nth-child(2) { transition-delay: 0s, 0.1s, 0.1s;   }
+.cmf-panel:nth-child(3) { transition-delay: 0s, 0.2s, 0.2s;   }
+.cmf-panel:nth-child(4) { transition-delay: 0s, 0.3s, 0.3s;   }
+
+/* 활성 패널: 더 넓게 */
+.cmf-panels.has-active .cmf-panel { flex: 0.6; }
+.cmf-panels.has-active .cmf-panel.active { flex: 2.2; }
+
+.cmf-panel img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+  transition: transform 0.55s ease, filter 0.4s ease;
+  filter: brightness(0.88);
+}
+.cmf-panel.active img,
+.cmf-panel:hover img {
+  transform: scale(1.03);
+  filter: brightness(1.0);
+}
+
+/* 컬러명 */
+.cmf-color-name {
+  position: absolute;
+  top: 28px; left: 28px;
+  font-size: clamp(20px, 2.5vw, 36px);
+  font-weight: 400;
+  color: #fff;
+  letter-spacing: 0.02em;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.2);
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+/* 비활성 패널에서 색명 약하게 */
+.cmf-panels.has-active .cmf-panel:not(.active) .cmf-color-name {
+  opacity: 0.5;
+}
+
+/* ── 하단 컨트롤 바 ── */
+.cmf-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 28px 40px 0;
+  position: relative;
+}
+
+/* 도트 + 레이블 pill */
+.cmf-dots-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255,255,255,0.85);
+  border-radius: 100px;
+  padding: 10px 20px;
+  backdrop-filter: blur(6px);
+}
+.cmf-dot-label {
+  font-size: 11px;
+  color: #555;
+  letter-spacing: 0.08em;
+  margin-right: 4px;
+}
+.cmf-dot {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+  flex-shrink: 0;
+}
+.cmf-dot:hover { transform: scale(1.15); }
+.cmf-dot.active {
+  border-color: #333;
+  transform: scale(1.2);
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px #333;
+}
+.cmf-dot-khaki  { background: #5a6b35; }
+.cmf-dot-silver { background: #c0c0c0; }
+.cmf-dot-sepia  { background: #8b5c2a; }
+.cmf-dot-black  { background: #222; }
+
+/* 화살표 버튼 */
+.cmf-arrow {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.85);
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: #333;
+  backdrop-filter: blur(6px);
+  transition: background 0.25s, transform 0.2s, box-shadow 0.25s;
+  position: absolute;
+}
+.cmf-arrow:hover {
+  background: #fff;
+  transform: scale(1.08);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+.cmf-arrow-prev { right: calc(50% + 180px); }
+.cmf-arrow-next { left: calc(50% + 180px); }
+
+
+/* ── MOMENTS CAROUSEL ── */
+#moments-section {
+  background: #fff;
+  padding: 72px 0 56px;
+  overflow: hidden;
+}
+.moments-header {
+  text-align: center; margin-bottom: 44px;
+  opacity: 0; transform: translateY(20px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.moments-header.visible { opacity: 1; transform: translateY(0); }
+.moments-eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.2em;
+  text-transform: uppercase; color: #FF7A00; margin-bottom: 8px;
+}
+.moments-title {
+  font-size: clamp(28px, 3.5vw, 48px); font-weight: 700;
+  color: #111; letter-spacing: -0.01em;
+}
+.moments-carousel { position: relative; width: 100%; overflow: hidden; }
+.moments-track {
+  display: flex;
+  transition: transform 0.65s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
+}
+.moment-slide {
+  flex: 0 0 100%; position: relative; overflow: hidden;
+  -webkit-mask-image: radial-gradient(ellipse 88% 78% at 50% 58%, #000 52%, transparent 100%);
+          mask-image: radial-gradient(ellipse 88% 78% at 50% 58%, #000 52%, transparent 100%);
+}
+.moment-slide img {
+  width: 100%; height: auto; display: block;
+  transition: transform 0.6s ease;
+}
+.moment-slide:hover img { transform: scale(1.02); }
+.moment-label {
+  position: absolute; top: 48px; left: 50%; transform: translateX(-50%);
+  background: rgba(255,255,255,0.78); backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 9px 28px; border-radius: 100px;
+  font-size: 18px; font-weight: 500; color: #111;
+  letter-spacing: 0.02em; white-space: nowrap;
+  box-shadow: 0 2px 14px rgba(0,0,0,0.1);
+  pointer-events: none; z-index: 5;
+}
+.moments-arrow {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  z-index: 10; width: 52px; height: 52px; border-radius: 50%;
+  background: rgba(255,255,255,0.78); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; color: #333;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 4px 18px rgba(0,0,0,0.12);
+  transition: background 0.25s, box-shadow 0.25s, transform 0.2s;
+}
+.moments-arrow:hover { background: #fff; box-shadow: 0 6px 28px rgba(0,0,0,0.18); }
+.moments-arrow-prev { left: 40px; }
+.moments-arrow-prev:hover { transform: translateY(-50%) scale(1.08); }
+.moments-arrow-next { right: 40px; }
+.moments-arrow-next:hover { transform: translateY(-50%) scale(1.08); }
+.moments-dots {
+  display: flex; justify-content: center; align-items: center; gap: 8px;
+  margin-top: 24px;
+}
+.moments-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #ddd; cursor: pointer;
+  transition: background 0.3s, transform 0.3s;
+}
+.moments-dot.active { background: #FF7A00; transform: scale(1.45); }
+.moments-dot:hover:not(.active) { background: #bbb; }
+.moments-progress {
+  width: 72px; height: 2px; background: #eee;
+  margin: 14px auto 0; border-radius: 2px; overflow: hidden;
+}
+.moments-progress-bar {
+  height: 100%; background: #FF7A00; border-radius: 2px;
+  transition: width 0.65s ease;
+}
+
+
+/* ── AMBIENT SOUND BUTTON ── */
+#sound-btn {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  z-index: 999;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(20, 15, 8, 0.85);
+  border: 1.5px solid rgba(255, 122, 0, 0.5);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.35), 0 0 0 0 rgba(255,122,0,0);
+  transition: transform 0.25s, box-shadow 0.25s, border-color 0.3s;
+  font-size: 22px;
+  line-height: 1;
+  user-select: none;
+}
+#sound-btn:hover {
+  transform: scale(1.1);
+  border-color: rgba(255, 122, 0, 0.9);
+  box-shadow: 0 6px 28px rgba(0,0,0,0.4), 0 0 18px rgba(255,122,0,0.3);
+}
+#sound-btn.playing {
+  border-color: #FF7A00;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.35), 0 0 0 6px rgba(255,122,0,0.15);
+  animation: soundPulse 2.5s ease-in-out infinite;
+}
+@keyframes soundPulse {
+  0%, 100% { box-shadow: 0 4px 20px rgba(0,0,0,0.35), 0 0 0 4px rgba(255,122,0,0.12); }
+  50%       { box-shadow: 0 4px 20px rgba(0,0,0,0.35), 0 0 0 10px rgba(255,122,0,0.06); }
+}
+
+/* 툴팁 */
+#sound-tooltip {
+  position: fixed;
+  bottom: 96px;
+  right: 32px;
+  z-index: 998;
+  background: rgba(20,15,8,0.92);
+  border: 1px solid rgba(255,122,0,0.3);
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: #fff;
+  font-size: 12px;
+  line-height: 1.6;
+  max-width: 200px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  pointer-events: none;
+}
+#sound-tooltip.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+#sound-tooltip strong {
+  display: block;
+  color: #FF7A00;
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+
+
+/* ── VIRTUAL DEVICE SECTION ── */
+#virtual-section {
+  background: #0a0604;
+  padding: 80px 0 0;
+  overflow: hidden;
+}
+
+.virtual-header {
+  text-align: center;
+  padding: 0 40px 48px;
+  opacity: 0; transform: translateY(20px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.virtual-header.visible { opacity: 1; transform: translateY(0); }
+
+.virtual-eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.2em;
+  text-transform: uppercase; color: #FF7A00; margin-bottom: 10px;
+}
+.virtual-title {
+  font-size: clamp(28px, 3.5vw, 48px); font-weight: 700;
+  color: #fff; margin-bottom: 14px; letter-spacing: -0.01em;
+}
+.virtual-desc {
+  font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.7;
+}
+
+/* iframe 래퍼 */
+.virtual-iframe-wrap {
+  position: relative;
+  width: 100%;
+  /* 실제 가상기기 페이지 비율에 맞게 */
+  padding-bottom: 75%;
+  background: #111;
+  opacity: 0; transform: translateY(30px);
+  transition: opacity 0.9s ease 0.2s, transform 0.9s ease 0.2s;
+}
+.virtual-iframe-wrap.visible { opacity: 1; transform: translateY(0); }
+
+.virtual-iframe-wrap iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  /* 주변 페이지와 자연스럽게 어우러지도록 */
+  filter: brightness(0.97);
+}
+
+/* 상단 페이드 오버레이 — 섹션과 자연스럽게 연결 */
+.virtual-fade-top {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 60px;
+  background: linear-gradient(to bottom, #0a0604, transparent);
+  pointer-events: none;
+  z-index: 2;
+}
+
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="nav-logo">calcifer<sup>©</sup></div>
+  <ul class="nav-links">
+    <li><a href="#">HOME</a></li>
+    <li><a href="#">PRODUCT</a></li>
+    <li><a href="#">TECH</a></li>
+    <li><a href="#">INTERECTION</a></li>
+  </ul>
+  <div class="nav-right">
+    <span class="nav-cart">CART (0)</span>
+    <div class="nav-menu"><span></span><span></span><span></span></div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <img class="hero-bg" id="hero-parallax" src="./images/hero.jpg" alt="hero" />
+  <div class="hero-text">
+    <h1 class="hero-title">Sound.<br>Calm.</h1>
+    <div class="hero-cta-row">
+      <span class="hero-tag">불멍을 내 곁에 두는 순간 →</span>
+      <button class="hero-price-btn">₩249,000</button>
+    </div>
+  </div>
+  <div class="scroll-indicator"><span>scroll</span><div class="scroll-line"></div></div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="feat reveal">
+    <svg class="feat-icon" viewBox="0 0 44 44" fill="none">
+      <circle cx="10" cy="34" r="1.5" fill="#FF7A00"/><circle cx="14" cy="32" r="1.5" fill="#FF7A00"/><circle cx="18" cy="34" r="1.5" fill="#FF7A00"/><circle cx="22" cy="32" r="1.5" fill="#FF7A00"/><circle cx="26" cy="34" r="1.5" fill="#FF7A00"/>
+      <circle cx="12" cy="28" r="1.5" fill="#FF7A00" opacity="0.8"/><circle cx="16" cy="26" r="1.5" fill="#FF7A00" opacity="0.8"/><circle cx="20" cy="28" r="1.5" fill="#FF7A00" opacity="0.8"/><circle cx="24" cy="26" r="1.5" fill="#FF7A00" opacity="0.8"/>
+      <circle cx="14" cy="22" r="1.5" fill="#FF7A00" opacity="0.6"/><circle cx="18" cy="20" r="1.5" fill="#FF7A00" opacity="0.6"/><circle cx="22" cy="22" r="1.5" fill="#FF7A00" opacity="0.6"/>
+      <circle cx="16" cy="16" r="1.5" fill="#FF7A00" opacity="0.4"/><circle cx="20" cy="14" r="1.5" fill="#FF7A00" opacity="0.4"/><circle cx="18" cy="10" r="1.2" fill="#FF7A00" opacity="0.25"/>
+    </svg>
+    <div><div class="feat-name">OLED FLAME</div><div class="feat-desc">음악에 반응하는<br>OLED 조명</div></div>
+  </div>
+  <div class="feat reveal reveal-d1">
+    <svg class="feat-icon" viewBox="0 0 44 44" fill="none">
+      <path d="M22 8C20 14 16 18 18 24C19 27 20.5 28.5 22 28.5C23.5 28.5 25 27 26 24C28 18 24 14 22 8Z" fill="#FF7A00" opacity="0.85"/>
+      <path d="M14 18Q10 22 14 26" stroke="#FF7A00" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.7"/>
+      <path d="M10 15Q4 22 10 29" stroke="#FF7A00" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.45"/>
+      <path d="M30 18Q34 22 30 26" stroke="#FF7A00" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.7"/>
+      <path d="M34 15Q40 22 34 29" stroke="#FF7A00" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.45"/>
+    </svg>
+    <div><div class="feat-name">HIFI SOUND</div><div class="feat-desc">풍부한 사운드와<br>캠핑에 온 듯한 사운드</div></div>
+  </div>
+  <div class="feat reveal reveal-d2">
+    <svg class="feat-icon" viewBox="0 0 44 44" fill="none">
+      <circle cx="22" cy="22" r="6" stroke="#FF7A00" stroke-width="1.8" fill="none"/>
+      <line x1="22" y1="4" x2="22" y2="9" stroke="#FF7A00" stroke-width="1.8" stroke-linecap="round"/><line x1="22" y1="35" x2="22" y2="40" stroke="#FF7A00" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="4" y1="22" x2="9" y2="22" stroke="#FF7A00" stroke-width="1.8" stroke-linecap="round"/><line x1="35" y1="22" x2="40" y2="22" stroke="#FF7A00" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="8.9" y1="8.9" x2="12.4" y2="12.4" stroke="#FF7A00" stroke-width="1.8" stroke-linecap="round"/><line x1="31.6" y1="31.6" x2="35.1" y2="35.1" stroke="#FF7A00" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="8.9" y1="35.1" x2="12.4" y2="31.6" stroke="#FF7A00" stroke-width="1.8" stroke-linecap="round"/><line x1="31.6" y1="12.4" x2="35.1" y2="8.9" stroke="#FF7A00" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+    <div><div class="feat-name">AMBIENT LIGHT</div><div class="feat-desc">따뜻한 조도로<br>공간을 물들이는 빛</div></div>
+  </div>
+  <div class="feat reveal reveal-d3">
+    <svg class="feat-icon" viewBox="0 0 44 44" fill="none">
+      <rect x="11" y="10" width="18" height="26" rx="3" stroke="#FF7A00" stroke-width="1.8" fill="none"/>
+      <rect x="16" y="7" width="8" height="4" rx="1.5" fill="#FF7A00" opacity="0.6"/>
+      <rect x="14" y="22" width="12" height="10" rx="1.5" fill="#FF7A00" opacity="0.7"/>
+    </svg>
+    <div><div class="feat-name">BATTERY</div><div class="feat-desc">최대 10시간<br>지속되는 무선 사용</div></div>
+  </div>
+</section>
+
+<!-- PRODUCT GRID -->
+<section id="product-grid">
+  <div class="pg-main reveal"><img src="./images/outdoor_indoor.jpg" alt="Outdoor" /></div>
+  <div class="pg-card reveal reveal-d1"><img src="./images/unique_luxury.jpg" alt="Unique" /></div>
+  <div class="pg-card reveal reveal-d2"><img src="./images/warm_lighting.jpg" alt="Warm" /></div>
+</section>
+
+<!-- TEAM -->
+<section id="team">
+  <div class="team-row">
+    <div class="team-card card-bomin reveal"><img src="./images/team_bomin.jpg" alt="Bomin Kim" /></div>
+    <div class="team-card card-sujeong reveal reveal-d1"><img src="./images/team_sujeong.jpg" alt="Sujeong Park" /></div>
+    <div class="team-card card-yumin reveal reveal-d2"><img src="./images/team_yumin.jpg" alt="Yumin Seo" /></div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-top">
+    <h2 class="about-title reveal">What<br>About<br>Us</h2>
+    <div class="about-imgs">
+      <div class="about-img-wrap reveal"><img src="./images/about_1.jpg" alt="Camping 1" /></div>
+      <div class="about-img-wrap reveal reveal-d1"><img src="./images/about_2.jpg" alt="Camping 2" /></div>
+      <div class="about-img-wrap reveal reveal-d2"><img src="./images/about_3.jpg" alt="Camping 3" /></div>
+    </div>
+  </div>
+  <div class="about-bottom">
+    <div class="about-text reveal reveal-d3">
+      <h3>Camping Life</h3>
+      <p>캠핑은 단순히 자연을 찾는 것이 아니라, 바쁜 일상 속에서 잠시 멈추고 나만의 속도를 되찾는 시간입니다. 타오르는 불빛과 잔잔한 음악, 그리고 자연의 공기. 작은 빛 하나가 공간의 분위기를 바꾸고, 익숙한 순간도 더욱 특별한 기억으로 남습니다.<br><br>CALCIFER는 불빛, 소리, 분위기 이 세가지를 하나의 제품으로 담아 언제 어디서나 캠핑의 감성을 경험하도록 디자인하였습니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- EVERYDAY -->
+<section id="everyday">
+  <img class="ev-bg" id="ev-parallax" src="./images/everyday_bg.jpg" alt="bg" />
+  <div class="ev-content">
+    <div class="ev-row-top">
+      <div class="ev-frame-left reveal-left"><img src="./images/everyday_1.jpg" alt="Friends" /></div>
+      <div class="ev-title-col"><h2 class="ev-title reveal-title">Everyday<br>life as<br>Camping</h2></div>
+      <div class="ev-frame-right reveal-right"><img src="./images/everyday_2.jpg" alt="Coffee" /></div>
+    </div>
+    <div class="ev-row-bottom">
+      <div class="ev-orange-bg">
+        <div class="ev-frame-bottom reveal-up"><img src="./images/everyday_3.jpg" alt="Family" /></div>
+        <div class="ev-camping-text reveal reveal-d2">
+          <h3>Camping Life</h3>
+          <p>실내외를 구분하지 않고, 일상 속 어디에서든<br>캠핑의 감성과 휴식을 느낄 수 있습니다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INSIGHT / PLACE EMOTION -->
+<section id="insight">
+  <div class="insight-label" id="insight-label">
+    <div class="insight-label-dot"></div>
+    <span class="insight-label-text">Insight</span>
+  </div>
+
+  <div class="insight-slider" id="insight-slider">
+
+    <!-- 우측: 모닥불 (배경) -->
+    <img class="insight-right"
+      src="./images/insight_left.jpg"
+      alt="Campfire" />
+
+    <!-- 좌측: 제품 (clip-path로 제어) -->
+    <div class="insight-left-wrap" id="insight-left-wrap">
+      <img class="insight-left"
+        src="./images/insight_right.jpg"
+        alt="Calcifer product" />
+    </div>
+
+    <!-- 구분선 + 핸들 -->
+    <div class="insight-divider" id="insight-divider">
+      <div class="insight-handle">
+        <svg viewBox="0 0 22 22" fill="none">
+          <path d="M8 5L3 11L8 17" stroke="#FF7A00" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M14 5L19 11L14 17" stroke="#FF7A00" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- 힌트 -->
+    <div class="insight-hint" id="insight-hint">
+      <span>← 드래그해서 비교 →</span>
+    </div>
+
+    <!-- Place Emotion 텍스트 -->
+    <div class="insight-text">
+      <h3>Place Emotion</h3>
+      <p>사용자는 단순히 조명을 키는 것이 아닌<br>
+      조명을 통해 공간의 감정을 느끼고 싶어합니다.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- BACKGROUND -->
+<section id="bg-section">
+  <img class="bg-img" id="bg-parallax"
+    src="./images/background.jpg" alt="Background" />
+  <div class="bg-overlay"></div>
+  <div class="bg-content">
+    <div class="bg-label" id="bg-label">
+      <div class="bg-label-dot"></div>
+      <span class="bg-label-text">Background</span>
+    </div>
+    <div class="bg-text-block">
+      <h2 class="bg-main-copy" id="bg-main">
+        캠핑을 가지 못하는 날, 캠핑의 분위기는 즐기고 싶을 때
+      </h2>
+      <p class="bg-sub-copy" id="bg-sub">
+        캠핑은 야외활동을 직접 경험할 수 있지만,<br>
+        현실에 부딪혀 매번 떠나기 어렵습니다.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- CONCEPT -->
+<section id="concept-section">
+  <img class="concept-img" id="concept-parallax"
+    src="./images/concept.jpg" alt="Concept" />
+  <div class="concept-overlay"></div>
+  <div class="concept-content">
+    <div class="concept-label" id="concept-label">
+      <div class="concept-label-dot"></div>
+      <span class="concept-label-text">Concept</span>
+    </div>
+    <div class="concept-text-block">
+      <h2 class="concept-main-copy" id="concept-main">
+        불을 피우지 않고, 캠핑의 감정을 밝히다
+      </h2>
+      <p class="concept-sub-copy" id="concept-sub">
+        실내·외 어디서든 환하게 밝히며<br>
+        캠핑의 분위기를 조성합니다.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCT MAIN -->
+<section id="product-section">
+
+  <!-- 메인 이미지 (1-1 + 1-2 합친 것) + 좌상단 로고 -->
+  <div class="product-main-img-wrap">
+    <img class="product-main-img"
+      src="./images/product_main.jpg"
+      alt="Calcifer product" />
+    <div class="product-logo-overlay" id="product-logo">
+      <p class="product-logo-text">calcifer<sup>©</sup></p>
+    </div>
+  </div>
+
+  <!-- 모드 레이블 + 카드 -->
+  <div class="product-modes-wrap">
+
+    <!-- 레이블 행 -->
+    <div class="mode-labels-row">
+      <div class="mode-label-item" id="mode-label-1">
+        <div class="mode-label-dot"></div>
+        <span class="mode-label-name">Immersive Sound Output</span>
+      </div>
+      <div class="mode-label-item" id="mode-label-2">
+        <div class="mode-label-dot"></div>
+        <span class="mode-label-name">Digital Flame Lighting</span>
+      </div>
+      <div class="mode-label-item" id="mode-label-3">
+        <div class="mode-label-dot"></div>
+        <span class="mode-label-name">Hanging Lantern Mode</span>
+      </div>
+    </div>
+
+    <!-- 카드 이미지 행 -->
+    <div class="mode-cards-row">
+      <div class="mode-card" id="mode-card-1">
+        <img src="./images/mode_sound.jpg" alt="Immersive Sound Output" />
+      </div>
+      <div class="mode-card" id="mode-card-2">
+        <img src="./images/mode_flame.jpg" alt="Digital Flame Lighting" />
+      </div>
+      <div class="mode-card" id="mode-card-3">
+        <img src="./images/mode_lantern.jpg" alt="Hanging Lantern Mode" />
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- DIMENSION + CMF -->
+<section id="dimension-section">
+
+  <!-- 상단 헤더: 레이블(좌) + 스펙(우) -->
+  <div class="dim-header">
+    <div class="dim-label" id="dim-label">
+      <div class="dim-label-dot"></div>
+      <span class="dim-label-text">Product Dimensions &amp; CMF</span>
+    </div>
+    <div class="dim-specs" id="dim-specs">
+      <h2 class="dim-spec-title">PRODUCT<br>DIMENSIONS</h2>
+      <div class="dim-spec-row">
+        <span>Body Size</span> &nbsp; 130(W) × 130(D) × 280(H) mm<br>
+        <span>With Handle</span> &nbsp; 130(W) × 130(D) × 340(H) mm
+      </div>
+    </div>
+  </div>
+
+  <!-- 분해도 + 치수 이미지 -->
+  <div class="dim-img-wrap" id="dim-img">
+    <img class="dim-img"
+      src="./images/dimension_cmf.jpg"
+      alt="Product Dimensions and CMF Exploded View" />
+  </div>
+
+</section>
+
+<!-- CMF COLOR SWATCH -->
+<section id="cmf-section">
+
+  <!-- 4컬러 패널 -->
+  <div class="cmf-panels" id="cmf-panels">
+
+    <div class="cmf-panel" data-color="khaki" id="cmf-khaki">
+      <img src="./images/cmf_khaki.jpg" alt="Khaki" />
+      <span class="cmf-color-name">Khaki</span>
+    </div>
+
+    <div class="cmf-panel" data-color="silver" id="cmf-silver">
+      <img src="./images/cmf_silver.jpg" alt="Silver" />
+      <span class="cmf-color-name">Silver</span>
+    </div>
+
+    <div class="cmf-panel" data-color="sepia" id="cmf-sepia">
+      <img src="./images/cmf_sepia.jpg" alt="Sepia" />
+      <span class="cmf-color-name">Sepia</span>
+    </div>
+
+    <div class="cmf-panel" data-color="black" id="cmf-black">
+      <img src="./images/cmf_black.jpg" alt="Black" />
+      <span class="cmf-color-name">Black</span>
+    </div>
+
+  </div>
+
+  <!-- 하단 컨트롤 -->
+  <div class="cmf-controls">
+    <button class="cmf-arrow cmf-arrow-prev" id="cmf-prev">&#8249;</button>
+
+    <div class="cmf-dots-wrap">
+      <span class="cmf-dot-label">전체 색상</span>
+      <div class="cmf-dot cmf-dot-khaki  active" data-color="khaki"></div>
+      <div class="cmf-dot cmf-dot-silver"        data-color="silver"></div>
+      <div class="cmf-dot cmf-dot-sepia"         data-color="sepia"></div>
+      <div class="cmf-dot cmf-dot-black"         data-color="black"></div>
+    </div>
+
+    <button class="cmf-arrow cmf-arrow-next" id="cmf-next">&#8250;</button>
+  </div>
+
+</section>
+
+<!-- MOMENTS CAROUSEL -->
+<section id="moments-section">
+  <div class="moments-header" id="moments-header">
+    <p class="moments-eyebrow">Where to use</p>
+    <h2 class="moments-title">Moments</h2>
+  </div>
+  <div class="moments-carousel" id="moments-carousel">
+    <div class="moments-track" id="moments-track">
+    <div class="moment-slide">
+      <img src="./images/moment_campground.jpg" alt="Campground" />
+      <div class="moment-label">Campground</div>
+    </div>
+    <div class="moment-slide">
+      <img src="./images/moment_forest.jpg" alt="Forest" />
+      <div class="moment-label">Forest</div>
+    </div>
+    <div class="moment-slide">
+      <img src="./images/moment_lakeside.jpg" alt="Lakeside" />
+      <div class="moment-label">Lakeside</div>
+    </div>
+    <div class="moment-slide">
+      <img src="./images/moment_beach.jpg" alt="Beach" />
+      <div class="moment-label">Beach</div>
+    </div>
+    <div class="moment-slide">
+      <img src="./images/moment_mountain.jpg" alt="Mountain" />
+      <div class="moment-label">Mountain</div>
+    </div>
+    <div class="moment-slide">
+      <img src="./images/moment_1.jpg" alt="Moments" />
+      <div class="moment-label">Moments</div>
+    </div>
+    <div class="moment-slide">
+      <img src="./images/moment_2.jpg" alt="Moments" />
+      <div class="moment-label">Moments</div>
+    </div>
+    </div>
+    <button class="moments-arrow moments-arrow-prev" id="moments-prev">&#8249;</button>
+    <button class="moments-arrow moments-arrow-next" id="moments-next">&#8250;</button>
+  </div>
+  <div class="moments-dots" id="moments-dots"><div class="moments-dot  active" data-idx="0"></div><div class="moments-dot" data-idx="1"></div><div class="moments-dot" data-idx="2"></div><div class="moments-dot" data-idx="3"></div><div class="moments-dot" data-idx="4"></div><div class="moments-dot" data-idx="5"></div><div class="moments-dot" data-idx="6"></div></div>
+  <div class="moments-progress">
+    <div class="moments-progress-bar" id="moments-bar" style="width:14.3%"></div>
+  </div>
+</section>
+
+<!-- VIRTUAL DEVICE -->
+<section id="virtual-section">
+
+  <div class="virtual-header" id="virtual-header">
+    <p class="virtual-eyebrow">Interactive Experience</p>
+    <h2 class="virtual-title">가상기기 체험</h2>
+    <p class="virtual-desc">
+      실제 Calcifer를 직접 조작해보세요.<br>
+      조명 밝기, 색온도, 모드, 볼륨을 자유롭게 제어할 수 있습니다.
+    </p>
+  </div>
+
+  <div class="virtual-iframe-wrap" id="virtual-iframe-wrap">
+    <div class="virtual-fade-top"></div>
+    <iframe
+      src="https://caffeineworks-ai.github.io/calcifier/calcifier.html"
+      title="Calcifer 가상기기"
+      allow="autoplay; fullscreen"
+      loading="lazy"
+      scrolling="no">
+    </iframe>
+  </div>
+
+</section>
+
+
+
+
+
+
+
+<script>
+// NAV
+window.addEventListener('scroll', () => {
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 60);
+}, { passive: true });
+
+// 패럴렉스
+const heroBg = document.getElementById('hero-parallax');
+const heroEl = document.getElementById('hero');
+const evBg   = document.getElementById('ev-parallax');
+const evEl   = document.getElementById('everyday');
+window.addEventListener('scroll', () => {
+  const y = window.scrollY;
+  if (y < heroEl.offsetHeight * 1.5)
+    heroBg.style.transform = `translateY(${y * 0.22}px)`;
+  const evRect = evEl.getBoundingClientRect();
+  if (evRect.top < window.innerHeight && evRect.bottom > 0)
+    evBg.style.transform = `translateY(${(window.innerHeight - evRect.top) * 0.12}px)`;
+
+  // Concept parallax
+  const conceptImg = document.getElementById('concept-parallax');
+  const conceptSec = document.getElementById('concept-section');
+  if (conceptImg && conceptSec) {
+    const cTop = conceptSec.getBoundingClientRect().top + window.scrollY;
+    const cOff = window.scrollY - cTop;
+    if (cOff > -window.innerHeight && cOff < conceptSec.offsetHeight) {
+      conceptImg.style.transform = `translateY(${cOff * 0.14}px)`;
+    }
+  }
+  // Background parallax
+  const bgImg = document.getElementById('bg-parallax');
+  const bgSec = document.getElementById('bg-section');
+  if (bgImg && bgSec) {
+    const bgTop = bgSec.getBoundingClientRect().top + window.scrollY;
+    const bgOff = window.scrollY - bgTop;
+    if (bgOff > -window.innerHeight && bgOff < bgSec.offsetHeight) {
+      bgImg.style.transform = `translateY(${bgOff * 0.14}px)`;
+    }
+  }
+}, { passive: true });
+
+// 스크롤 리빌
+const revEls = document.querySelectorAll(
+  '.reveal,.reveal-left,.reveal-right,.reveal-title,.reveal-up,.insight-label,.bg-label,.bg-main-copy,.bg-sub-copy,.concept-label,.concept-main-copy,.concept-sub-copy,.product-logo-overlay,.mode-label-item,.mode-card,.dim-label,.dim-specs,.dim-img-wrap,.cmf-panel,.moments-header,.virtual-header,.virtual-iframe-wrap'
+);
+const revObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.06 });
+revEls.forEach(el => revObs.observe(el));
+
+// 햄버거
+const menuBtn = document.querySelector('.nav-menu');
+let menuOpen = false;
+menuBtn.addEventListener('click', () => {
+  menuOpen = !menuOpen;
+  const [a,b,c] = menuBtn.querySelectorAll('span');
+  if (menuOpen) {
+    a.style.transform = 'translateY(6.5px) rotate(45deg)';
+    b.style.opacity = '0';
+    c.style.transform = 'translateY(-6.5px) rotate(-45deg)';
+  } else {
+    [a,b,c].forEach(s => { s.style.transform=''; s.style.opacity=''; });
+  }
+});
+
+// ── INSIGHT 드래그 슬라이더 ──
+const slider   = document.getElementById('insight-slider');
+const leftWrap = document.getElementById('insight-left-wrap');
+const divider  = document.getElementById('insight-divider');
+const hint     = document.getElementById('insight-hint');
+let isDragging = false, hintHidden = false;
+
+function setPos(pct) {
+  pct = Math.min(95, Math.max(5, pct));
+  leftWrap.style.clipPath = `inset(0 ${100 - pct}% 0 0)`;
+  divider.style.left = `${pct}%`;
+}
+
+// 마우스
+slider.addEventListener('mousedown', e => {
+  isDragging = true; hideHint(); e.preventDefault();
+});
+window.addEventListener('mousemove', e => {
+  if (!isDragging) return;
+  const r = slider.getBoundingClientRect();
+  setPos(((e.clientX - r.left) / r.width) * 100);
+});
+window.addEventListener('mouseup', () => { isDragging = false; });
+
+// 터치
+slider.addEventListener('touchstart', () => {
+  isDragging = true; hideHint();
+}, { passive: true });
+window.addEventListener('touchmove', e => {
+  if (!isDragging) return;
+  const r = slider.getBoundingClientRect();
+  setPos(((e.touches[0].clientX - r.left) / r.width) * 100);
+}, { passive: true });
+window.addEventListener('touchend', () => { isDragging = false; });
+
+function hideHint() {
+  if (!hintHidden) { hint.classList.add('hidden'); hintHidden = true; }
+}
+
+// 진입 시 자동 애니메이션 (50% → 30% → 50%)
+let autoPlayed = false;
+new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting && !autoPlayed) {
+      autoPlayed = true;
+      setTimeout(() => {
+        let pct = 50, dir = -1, steps = 0;
+        const iv = setInterval(() => {
+          pct += dir * 1.4; setPos(pct); steps++;
+          if (pct <= 30) dir = 1;
+          if (pct >= 50 && steps > 20) clearInterval(iv);
+        }, 16);
+      }, 500);
+    }
+  });
+}, { threshold: 0.35 }).observe(document.getElementById('insight'));
+
+// ── CMF 컬러 스와치 인터랙션 ──
+(function() {
+  const panels    = document.getElementById('cmf-panels');
+  const allPanels = document.querySelectorAll('.cmf-panel');
+  const allDots   = document.querySelectorAll('.cmf-dot');
+  const colorOrder = ['khaki', 'silver', 'sepia', 'black'];
+  let current = -1; // -1 = 전체 보기
+
+  function activate(color) {
+    const idx = colorOrder.indexOf(color);
+    if (idx === -1) return;
+    current = idx;
+
+    panels.classList.add('has-active');
+    allPanels.forEach(p => {
+      p.classList.toggle('active', p.dataset.color === color);
+    });
+    allDots.forEach(d => {
+      d.classList.toggle('active', d.dataset.color === color);
+    });
+  }
+
+  function deactivate() {
+    current = -1;
+    panels.classList.remove('has-active');
+    allPanels.forEach(p => p.classList.remove('active'));
+    allDots.forEach(d => d.classList.remove('active'));
+  }
+
+  // 패널 클릭
+  allPanels.forEach(p => {
+    p.addEventListener('click', () => {
+      if (p.classList.contains('active')) {
+        deactivate();
+      } else {
+        activate(p.dataset.color);
+      }
+    });
+  });
+
+  // 도트 클릭
+  allDots.forEach(d => {
+    d.addEventListener('click', () => {
+      if (d.classList.contains('active')) {
+        deactivate();
+      } else {
+        activate(d.dataset.color);
+      }
+    });
+  });
+
+  // 화살표
+  document.getElementById('cmf-prev').addEventListener('click', () => {
+    const next = current <= 0 ? colorOrder.length - 1 : current - 1;
+    activate(colorOrder[next]);
+  });
+  document.getElementById('cmf-next').addEventListener('click', () => {
+    const next = current >= colorOrder.length - 1 ? 0 : current + 1;
+    activate(colorOrder[next]);
+  });
+
+  // 키보드
+  document.addEventListener('keydown', (e) => {
+    const sec = document.getElementById('cmf-section');
+    const rect = sec.getBoundingClientRect();
+    if (rect.top > window.innerHeight || rect.bottom < 0) return;
+    if (e.key === 'ArrowRight') document.getElementById('cmf-next').click();
+    if (e.key === 'ArrowLeft')  document.getElementById('cmf-prev').click();
+  });
+})();
+
+
+// ── MOMENTS CAROUSEL ──
+(function() {
+  const track  = document.getElementById('moments-track');
+  const dots   = document.querySelectorAll('.moments-dot');
+  const bar    = document.getElementById('moments-bar');
+  const TOTAL  = 7;
+  let cur = 0, autoTimer = null;
+
+  function goTo(idx) {
+    cur = (idx + TOTAL) % TOTAL;
+    track.style.transform = `translateX(-${cur * 100}%)`;
+    dots.forEach((d,i) => d.classList.toggle('active', i === cur));
+    bar.style.width = `${((cur+1)/TOTAL*100).toFixed(1)}%`;
+    resetAuto();
+  }
+
+  document.getElementById('moments-prev').addEventListener('click', () => goTo(cur-1));
+  document.getElementById('moments-next').addEventListener('click', () => goTo(cur+1));
+  dots.forEach((d,i) => d.addEventListener('click', () => goTo(i)));
+
+  let tx = 0;
+  const car = document.getElementById('moments-carousel');
+  car.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, {passive:true});
+  car.addEventListener('touchend', e => {
+    const diff = tx - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) goTo(cur + (diff > 0 ? 1 : -1));
+  });
+
+  document.addEventListener('keydown', e => {
+    const r = document.getElementById('moments-section').getBoundingClientRect();
+    if (r.top > window.innerHeight || r.bottom < 0) return;
+    if (e.key === 'ArrowRight') goTo(cur+1);
+    if (e.key === 'ArrowLeft')  goTo(cur-1);
+  });
+
+  function startAuto() { autoTimer = setInterval(() => goTo(cur+1), 5000); }
+  function resetAuto() { clearInterval(autoTimer); startAuto(); }
+
+  new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) startAuto();
+      else clearInterval(autoTimer);
+    });
+  }, {threshold:0.3}).observe(document.getElementById('moments-section'));
+})();
+
+
+// ── AMBIENT CAMPFIRE SOUND ──
+(function() {
+  let audioCtx = null;
+  let masterGain = null;
+  let isPlaying = false;
+  let nodes = [];
+  let tooltipTimer = null;
+
+  const btn = document.getElementById('sound-btn');
+  const tooltip = document.getElementById('sound-tooltip');
+
+  // 첫 방문 시 툴팁 자동 표시
+  setTimeout(() => {
+    tooltip.classList.add('show');
+    tooltipTimer = setTimeout(() => tooltip.classList.remove('show'), 4000);
+  }, 2500);
+
+  btn.addEventListener('mouseenter', () => {
+    clearTimeout(tooltipTimer);
+    tooltip.classList.add('show');
+  });
+  btn.addEventListener('mouseleave', () => {
+    tooltipTimer = setTimeout(() => tooltip.classList.remove('show'), 800);
+  });
+
+  function initAudio() {
+    if (audioCtx) return;
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    masterGain = audioCtx.createGain();
+    masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
+    masterGain.connect(audioCtx.destination);
+  }
+
+  // ── 화이트/브라운 노이즈 (장작 베이스 소리)
+  function createCrackleNoise() {
+    const bufferSize = audioCtx.sampleRate * 4;
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+
+    let b0=0, b1=0, b2=0, b3=0, b4=0, b5=0, b6=0;
+    for (let i = 0; i < bufferSize; i++) {
+      const white = Math.random() * 2 - 1;
+      // 핑크 노이즈 (장작 타는 소리에 가까운 스펙트럼)
+      b0 = 0.99886*b0 + white*0.0555179;
+      b1 = 0.99332*b1 + white*0.0750759;
+      b2 = 0.96900*b2 + white*0.1538520;
+      b3 = 0.86650*b3 + white*0.3104856;
+      b4 = 0.55000*b4 + white*0.5329522;
+      b5 = -0.7616*b5 - white*0.0168980;
+      data[i] = (b0+b1+b2+b3+b4+b5+b6 + white*0.5362) * 0.11;
+      b6 = white * 0.115926;
+    }
+
+    const source = audioCtx.createBufferSource();
+    source.buffer = buffer;
+    source.loop = true;
+
+    // 저음 강조 (장작 불 느낌)
+    const lowpass = audioCtx.createBiquadFilter();
+    lowpass.type = 'lowpass';
+    lowpass.frequency.value = 800;
+    lowpass.Q.value = 0.8;
+
+    const highpass = audioCtx.createBiquadFilter();
+    highpass.type = 'highpass';
+    highpass.frequency.value = 60;
+
+    // 게인
+    const gain = audioCtx.createGain();
+    gain.gain.value = 0.55;
+
+    source.connect(lowpass);
+    lowpass.connect(highpass);
+    highpass.connect(gain);
+    gain.connect(masterGain);
+    source.start();
+    return { source, gain };
+  }
+
+  // ── 팝 & 크랙클 (장작 튀는 소리)
+  function scheduleCrackle() {
+    if (!isPlaying) return;
+
+    const now = audioCtx.currentTime;
+    // 랜덤 주파수의 짧은 버스트
+    const osc = audioCtx.createOscillator();
+    const oscGain = audioCtx.createGain();
+    const filter = audioCtx.createBiquadFilter();
+
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(80 + Math.random() * 200, now);
+    osc.frequency.exponentialRampToValueAtTime(40, now + 0.08);
+
+    filter.type = 'bandpass';
+    filter.frequency.value = 300 + Math.random() * 400;
+    filter.Q.value = 0.5;
+
+    const vol = 0.03 + Math.random() * 0.06;
+    oscGain.gain.setValueAtTime(vol, now);
+    oscGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.06 + Math.random() * 0.1);
+
+    osc.connect(filter);
+    filter.connect(oscGain);
+    oscGain.connect(masterGain);
+
+    osc.start(now);
+    osc.stop(now + 0.15);
+
+    // 다음 크랙클 예약 (불규칙 간격)
+    const nextTime = 0.15 + Math.random() * 0.9;
+    setTimeout(scheduleCrackle, nextTime * 1000);
+  }
+
+  // ── 사운드 시작
+  function startSound() {
+    initAudio();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+
+    // 베이스 노이즈
+    const crackle = createCrackleNoise();
+    nodes.push(crackle);
+
+    // 볼륨 페이드인
+    masterGain.gain.cancelScheduledValues(audioCtx.currentTime);
+    masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
+    masterGain.gain.linearRampToValueAtTime(0.9, audioCtx.currentTime + 2.5);
+
+    // 크랙클 시작
+    setTimeout(scheduleCrackle, 800);
+
+    isPlaying = true;
+    btn.classList.add('playing');
+    btn.textContent = '🔊';
+    tooltip.classList.remove('show');
+  }
+
+  // ── 사운드 정지
+  function stopSound() {
+    if (!audioCtx) return;
+
+    // 볼륨 페이드아웃
+    masterGain.gain.cancelScheduledValues(audioCtx.currentTime);
+    masterGain.gain.setValueAtTime(masterGain.gain.value, audioCtx.currentTime);
+    masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1.5);
+
+    setTimeout(() => {
+      nodes.forEach(n => {
+        try { n.source.stop(); } catch(e) {}
+      });
+      nodes = [];
+    }, 1600);
+
+    isPlaying = false;
+    btn.classList.remove('playing');
+    btn.textContent = '🔥';
+  }
+
+  // ── 버튼 토글
+  btn.addEventListener('click', () => {
+    if (isPlaying) {
+      stopSound();
+    } else {
+      startSound();
+    }
+  });
+
+  // 페이지 벗어날 때 정지
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && isPlaying) stopSound();
+  });
+})();
+
+</script>
+
+<!-- AMBIENT SOUND BUTTON -->
+<button id="sound-btn" title="장작 소리 켜기/끄기">🔥</button>
+<div id="sound-tooltip">
+  <strong>🔥 불멍 사운드</strong>
+  버튼을 눌러<br>장작 소리를 켜보세요
+</div>
+
+
+<!-- == CAMPFIRE BGM == -->
+<audio id="fire-audio" loop>
+  <source src="./fire.mp3" type="audio/mpeg">
+</audio>
+
+<button id="fire-btn" title="장작 소리 On/Off">🔥</button>
+<div id="fire-tip"><strong>🔥 불멍 사운드</strong><br>버튼을 눌러 장작 소리를 켜보세요</div>
+
+<style>
+#fire-btn {
+  position: fixed; bottom: 32px; right: 32px; z-index: 9999;
+  width: 52px; height: 52px; border-radius: 50%;
+  background: rgba(20,15,8,0.88);
+  border: 1.5px solid rgba(255,122,0,0.5);
+  font-size: 22px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+#fire-btn:hover {
+  transform: scale(1.1);
+  border-color: #FF7A00;
+  box-shadow: 0 6px 28px rgba(255,122,0,0.35);
+}
+#fire-btn.on {
+  border-color: #FF7A00;
+  animation: firePulse 2.5s ease-in-out infinite;
+}
+@keyframes firePulse {
+  0%,100% { box-shadow: 0 4px 20px rgba(0,0,0,0.4), 0 0 0 4px rgba(255,122,0,0.1); }
+  50%      { box-shadow: 0 4px 20px rgba(0,0,0,0.4), 0 0 0 10px rgba(255,122,0,0.05); }
+}
+#fire-tip {
+  position: fixed; bottom: 94px; right: 32px; z-index: 9998;
+  background: rgba(20,15,8,0.92); border: 1px solid rgba(255,122,0,0.3);
+  border-radius: 10px; padding: 12px 16px;
+  color: #fff; font-size: 12px; line-height: 1.6; text-align: center;
+  max-width: 190px; pointer-events: none;
+  opacity: 0; transform: translateY(6px);
+  transition: opacity 0.4s, transform 0.4s;
+}
+#fire-tip strong { display: block; color: #FF7A00; margin-bottom: 4px; font-size: 13px; }
+#fire-tip.show { opacity: 1; transform: translateY(0); }
+</style>
+
+<script>
+(function() {
+  var audio = document.getElementById('fire-audio');
+  var btn   = document.getElementById('fire-btn');
+  var tip   = document.getElementById('fire-tip');
+  var isOn  = false;
+  var tipTimer;
+
+  audio.volume = 0.7;
+
+  function showTip() { clearTimeout(tipTimer); tip.classList.add('show'); }
+  function hideTip() { tipTimer = setTimeout(function(){ tip.classList.remove('show'); }, 800); }
+
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    if (isOn) {
+      audio.pause();
+      audio.currentTime = 0;
+      isOn = false;
+      btn.textContent = '🔥';
+      btn.classList.remove('on');
+    } else {
+      audio.play().then(function() {
+        isOn = true;
+        btn.textContent = '🔊';
+        btn.classList.add('on');
+        tip.classList.remove('show');
+      }).catch(function(err) { console.log('play error:', err); });
+    }
+  });
+
+  btn.addEventListener('mouseenter', showTip);
+  btn.addEventListener('mouseleave', hideTip);
+
+  // 툴팁 2초 후 자동 표시
+  setTimeout(showTip, 2000);
+  setTimeout(function() { tip.classList.remove('show'); }, 6000);
+
+  // 탭 전환 처리
+  document.addEventListener('visibilitychange', function() {
+    if (document.hidden) { if (isOn) audio.pause(); }
+    else                 { if (isOn) audio.play(); }
+  });
+})();
+</script>
+
+</body>
+</html>
